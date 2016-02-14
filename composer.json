@@ -1,0 +1,45 @@
+{
+  "name": "sfynx-project/tool-migration-bundle",
+  "type": "symfony-bundle",
+  "description": "This Bundle provides a command to execute migration with a versionning system like doctrine migration.",
+  "keywords": ["migration"],
+  "homepage": "http://pigroupe.github.io/cmf-sfynx/",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Etienne de Longeaux",
+      "email": "etienne.delongeaux@gmail.com"
+    },
+    {
+      "name": "Sfynx Community",
+      "homepage": "https://github.com/pigroupe/SfynxMigrationBundle/contributors"
+    }
+  ],
+
+  "require": {
+    "symfony/framework-bundle": "~2.3|~3.0"
+  },
+
+  "require-dev": {
+    "symfony/phpunit-bridge": "~2.7|~3.0",
+    "phpunit/phpunit": "*"
+  },
+
+  "suggest": {
+  },
+
+  "conflict": {
+  },
+
+  "autoload": {
+    "psr-0": { "Sfynx\\MigrationBundle": "" }
+  },
+
+  "target-dir": "Sfynx/MigrationBundle",
+
+  "extra": {
+    "branch-alias": {
+      "dev-master": "2.3-dev"
+    }
+  }
+}

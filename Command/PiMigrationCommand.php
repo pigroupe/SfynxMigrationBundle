@@ -64,7 +64,7 @@ class PiMigrationCommand extends ContainerAwareCommand
 
         // folder
         $migrationFolder = $input->getOption('dir');
-        if (is_null($migrationFolder)) {
+        if (null === $migrationFolder) {
             $migrationFolder  = $this->getContainer()->getParameter('sfynx.tool.migration.path_dir');
         }
 

@@ -38,15 +38,15 @@ abstract class abstractMigration
 {
     /**
      * @var ContainerInterface
-     */     
-    protected $container;  
-    
-    /** 
-     * @var OutputInterface 
+     */
+    protected $container;
+
+    /**
+     * @var OutputInterface
      */
     protected $output;
 
-    /** 
+    /**
      * @var DialogHelper
      */
     protected $dialog;
@@ -55,7 +55,7 @@ abstract class abstractMigration
      * @var string $path_dir
      */
     protected $path_dir;
-    
+
     public function __construct(ContainerInterface $container, OutputInterface $output, HelperInterface $dialog)
     {
         $this->container = $container;
@@ -89,7 +89,7 @@ abstract class abstractMigration
 
     protected function log($msg, $test = null)
     {
-        if (is_null($test)) {
+        if (null === $test) {
             $this->output->writeln("  $msg");
         } elseif ($test) {
             $this->output->writeln("  $msg <info>[OK]</info>");

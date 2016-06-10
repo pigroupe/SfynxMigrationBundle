@@ -42,6 +42,8 @@ use Symfony\Component\Finder\Finder;
  */
 class PiMigrationCommand extends ContainerAwareCommand
 {
+    protected $fileName = 'version.txt';
+
     protected function configure()
     {
         $this
@@ -60,6 +62,9 @@ class PiMigrationCommand extends ContainerAwareCommand
 
         // migration number
         $currentVersion = $input->getOption('currentVersion');
+
+
+
         $output->writeln('Current version : ' . $currentVersion);
 
         // folder
@@ -67,21 +72,53 @@ class PiMigrationCommand extends ContainerAwareCommand
         if (null === $migrationFolder) {
             $migrationFolder  = $this->getContainer()->getParameter('sfynx.tool.migration.path_dir');
         }
+        $filename = $migrationFolder.$this->fileName;
+
+        //if no version load file
+        if (null === $currentVersion) {
+            $output->writeln('loading from cache ' . $filename);
+            $currentVersion = $this->loadVersion($filename);
+            $output->writeln('current version is ' . $currentVersion);
+        }
+
+        //@todo : strategy with file
+        //@todo : add method addSQL to abstractMigration
+
 
         $finder = new Finder();
         $finder->files()->name('Migration_*.php')->in($migrationFolder)->sortByName();
+
+
+
         /** @var $file \Symfony\Component\Finder\SplFileInfo */
         foreach ($finder as $file) {
             $migrationName = $file->getBaseName('.php');
             $mivrationVersion = (int) str_replace('Migration_', '', $migrationName);
 
             if ($currentVersion < $mivrationVersion) {
-            //if ($mivrationVersion == "24") {  // pour lancer la migration 24
+                //if ($mivrationVersion == "24") {  // pour lancer la migration 24
                 $output->writeln('Start ' . $migrationName);
                 require_once($file->getRealpath());
                 $var = new $migrationName($this->getContainer(), $output, $dialog);
+
+
                 $output->writeln('End ' . $migrationName);
             }
+        }
+        //save last version
+        $this->saveVersion($filename, $mivrationVersion);
+        $output->writeln('saving version '.$mivrationVersion.' in ' . $filename);
+    }
+
+    protected function saveVersion($filePath, $version)
+    {
+        file_put_contents($filePath, $version);
+    }
+
+    protected function loadVersion($filePath)
+    {
+        if (file_exists($filePath)) {
+            return file_get_contents($filePath);
         }
     }
 }

@@ -74,16 +74,12 @@ class PiMigrationCommand extends ContainerAwareCommand
         }
         $filename = $migrationFolder.$this->fileName;
 
-        //if no version load file
+        //if no version in options, load file
         if (null === $currentVersion) {
             $output->writeln('loading from cache ' . $filename);
             $currentVersion = $this->loadVersion($filename);
             $output->writeln('current version is ' . $currentVersion);
         }
-
-        //@todo : strategy with file
-        //@todo : add method addSQL to abstractMigration
-
 
         $finder = new Finder();
         $finder->files()->name('Migration_*.php')->in($migrationFolder)->sortByName();
@@ -96,7 +92,7 @@ class PiMigrationCommand extends ContainerAwareCommand
             $mivrationVersion = (int) str_replace('Migration_', '', $migrationName);
 
             if ($currentVersion < $mivrationVersion) {
-                //if ($mivrationVersion == "24") {  // pour lancer la migration 24
+                //if ($mivrationVersion == "24") {  // pour lancer la migration 25
                 $output->writeln('Start ' . $migrationName);
                 require_once($file->getRealpath());
                 $var = new $migrationName($this->getContainer(), $output, $dialog);

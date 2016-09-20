@@ -7,6 +7,6 @@ All available configuration options are listed below with their default values.
 # SfynxMigrationBundle configuration
 #
 sfynx_migration: 
-    path_dir:
-        migration: "%kernel.root_dir%/migration/"
+    migration_dir: "%kernel.root_dir%/migration/"
+    version_dir: "%kernel.root_dir%/version/"
 ```

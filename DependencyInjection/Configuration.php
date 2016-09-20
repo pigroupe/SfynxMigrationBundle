@@ -67,10 +67,8 @@ class Configuration implements ConfigurationInterface
     {
         $rootNode
         ->children()
-            ->children()
-                ->scalarNode('migration_dir')->cannotBeEmpty()->end()
-                ->scalarNode('version_dir')->cannotBeEmpty()->end()
-            ->end()
+            ->scalarNode('migration_dir')->cannotBeEmpty()->end()
+            ->scalarNode('version_dir')->cannotBeEmpty()->end()
         ->end();
     }           
 }

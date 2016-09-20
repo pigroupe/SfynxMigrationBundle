@@ -42,7 +42,7 @@ use Symfony\Component\Finder\Finder;
  */
 class PiMigrationCommand extends ContainerAwareCommand
 {
-    protected $fileName = 'version.txt';
+    protected $versionFilename = 'version.txt';
 
     protected function configure()
     {
@@ -50,7 +50,8 @@ class PiMigrationCommand extends ContainerAwareCommand
             ->setName('sfynx:migration')
             ->setDescription('Migration Handler')
             ->addOption('currentVersion', null, InputOption::VALUE_REQUIRED, 'Force the version of migration')
-            ->addOption('dir', null, InputOption::VALUE_REQUIRED, 'Use another directory with all migration')
+            ->addOption('migrationDir', null, InputOption::VALUE_REQUIRED, 'Use another directory with all migration scripts')
+            ->addOption('versionDir', null, InputOption::VALUE_REQUIRED, 'Use another directory to store version file')
             ->addOption('test', null, InputOption::VALUE_NONE, 'For test');
         ;
     }
@@ -63,36 +64,41 @@ class PiMigrationCommand extends ContainerAwareCommand
         // migration number
         $currentVersion = $input->getOption('currentVersion');
 
-
-
         $output->writeln('Current version : ' . $currentVersion);
 
-        // folder
-        $migrationFolder = $input->getOption('dir');
-        if (null === $migrationFolder) {
-            $migrationFolder  = $this->getContainer()->getParameter('sfynx.tool.migration.path_dir');
+        // migration directory
+        $migrationDir = $input->getOption('migrationDir');
+        if (null === $migrationDir) {
+            $migrationDir  = $this->getContainer()->getParameter('sfynx.tool.migration.migration_dir');
         }
-        $filename = $migrationFolder.$this->fileName;
+
+        // version directory
+        $versionDir= $input->getOption('versionDir');
+        if (null === $versionDir) {
+            $versionDir  = $this->getContainer()->getParameter('sfynx.tool.migration.version_dir');
+        }
+
+        $versionFilepath = $versionDir.$this->versionFilename;
 
         //if no version in options, load file
         if (null === $currentVersion) {
-            $output->writeln('loading from cache ' . $filename);
-            $currentVersion = $this->loadVersion($filename);
+            $output->writeln('loading from cache ' . $versionFilepath);
+            $currentVersion = $this->loadVersion($versionFilepath);
             $output->writeln('current version is ' . $currentVersion);
         }
 
         $finder = new Finder();
-        $finder->files()->name('Migration_*.php')->in($migrationFolder)->sortByName();
+        $finder->files()->name('Migration_*.php')->in($migrationDir)->sortByName();
 
 
 
         /** @var $file \Symfony\Component\Finder\SplFileInfo */
         foreach ($finder as $file) {
             $migrationName = $file->getBaseName('.php');
-            $mivrationVersion = (int) str_replace('Migration_', '', $migrationName);
+            $migrationVersion = (int) str_replace('Migration_', '', $migrationName);
 
-            if ($currentVersion < $mivrationVersion) {
-                //if ($mivrationVersion == "24") {  // pour lancer la migration 25
+            if ($currentVersion < $migrationVersion) {
+                //if ($migrationVersion == "24") {  // pour lancer la migration 25
                 $output->writeln('Start ' . $migrationName);
                 require_once($file->getRealpath());
                 $var = new $migrationName($this->getContainer(), $output, $dialog);
@@ -102,8 +108,8 @@ class PiMigrationCommand extends ContainerAwareCommand
             }
         }
         //save last version
-        $this->saveVersion($filename, $mivrationVersion);
-        $output->writeln('saving version '.$mivrationVersion.' in ' . $filename);
+        $this->saveVersion($versionFilepath, $migrationVersion);
+        $output->writeln('saving version '.$migrationVersion.' in ' . $versionFilepath);
     }
 
     protected function saveVersion($filePath, $version)

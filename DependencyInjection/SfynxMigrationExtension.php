@@ -48,11 +48,8 @@ class SfynxMigrationExtension extends Extension
         /**
          * Cache config parameter
          */
-        if (isset($config['path_dir'])){
-            if (isset($config['path_dir']['migration'])) {
-                $container->setParameter('sfynx.tool.migration.path_dir', $config['path_dir']['migration']);
-            }
-        }    
+        $container->setParameter('sfynx.tool.migration.migration_dir', $config['migration_dir']);
+        $container->setParameter('sfynx.tool.migration.version_dir', $config['version_dir']);
     }
     
     public function getAlias()

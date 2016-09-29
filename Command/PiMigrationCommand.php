@@ -114,6 +114,10 @@ class PiMigrationCommand extends ContainerAwareCommand
 
     protected function saveVersion($filePath, $version)
     {
+        //create directory if not exists
+        if (!file_exists($dir = dirname($filePath))) {
+            mkdir($dir, 0755, true);
+        }
         file_put_contents($filePath, $version);
     }
 

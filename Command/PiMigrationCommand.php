@@ -112,6 +112,10 @@ class PiMigrationCommand extends ContainerAwareCommand
         $output->writeln('saving version '.$migrationVersion.' in ' . $versionFilepath);
     }
 
+    /**
+     * @param $filePath
+     * @param $version
+     */
     protected function saveVersion($filePath, $version)
     {
         //create directory if not exists
@@ -121,10 +125,15 @@ class PiMigrationCommand extends ContainerAwareCommand
         file_put_contents($filePath, $version);
     }
 
+    /**
+     * @param $filePath
+     * @return int
+     */
     protected function loadVersion($filePath)
     {
         if (file_exists($filePath)) {
-            return file_get_contents($filePath);
+            return (int) file_get_contents($filePath);
         }
+        return 0;
     }
 }

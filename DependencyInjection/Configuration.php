@@ -67,12 +67,8 @@ class Configuration implements ConfigurationInterface
     {
         $rootNode
         ->children()
-            ->arrayNode('path_dir')
-                ->addDefaultsIfNotSet()
-                ->children()                
-                    ->scalarNode('migration')->defaultValue('%kernel.root_dir%/migration/')->cannotBeEmpty()->end()
-                ->end()        
-            ->end()
+            ->scalarNode('migration_dir')->cannotBeEmpty()->end()
+            ->scalarNode('version_dir')->cannotBeEmpty()->end()
         ->end();
     }           
 }

@@ -34,32 +34,26 @@ use Symfony\Component\Console\Helper\HelperInterface;
  * @link       http://opensource.org/licenses/gpl-license.php
  * @since      2015-02-16
  */
-abstract class abstractMigration
+abstract class AbstractMigration
 {
     /**
      * @var ContainerInterface
-     */     
-    protected $container;  
-    
-    /** 
-     * @var OutputInterface 
+     */
+    protected $container;
+
+    /**
+     * @var OutputInterface
      */
     protected $output;
 
-    /** 
+    /**
      * @var DialogHelper
      */
     protected $dialog;
 
-    /**
-     * @var string $path_dir
-     */
-    protected $path_dir;
-    
     public function __construct(ContainerInterface $container, OutputInterface $output, HelperInterface $dialog)
     {
         $this->container = $container;
-        $this->path_dir  = $container->getParameter('sfynx.tool.migration.path_dir');
         $this->output    = $output;
         $this->dialog    = $dialog;
 
@@ -89,7 +83,7 @@ abstract class abstractMigration
 
     protected function log($msg, $test = null)
     {
-        if (is_null($test)) {
+        if (null === $test) {
             $this->output->writeln("  $msg");
         } elseif ($test) {
             $this->output->writeln("  $msg <info>[OK]</info>");

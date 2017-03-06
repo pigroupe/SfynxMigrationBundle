@@ -59,7 +59,7 @@ class PiMigrationCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         /** @var $dialog \Symfony\Component\Console\Helper\DialogHelper */
-        $dialog   = $this->getHelperSet()->get('dialog');
+        $dialog   = $this->getHelperSet()->get('question');
 
         // migration number
         $currentVersion = $input->getOption('currentVersion');

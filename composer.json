@@ -17,9 +17,9 @@
   ],
 
   "require": {
-    "symfony/framework-bundle": "~2.8",
-    "symfony/console": "~2.8",
-    "symfony/finder": "~2.8"
+    "symfony/framework-bundle": "2.8.*",
+    "symfony/console": "2.8.*",
+    "symfony/finder": "2.8.*"
   },
 
   "require-dev": {
@@ -41,7 +41,7 @@
 
   "extra": {
     "branch-alias": {
-      "dev-master": "2.8-dev"
+      "dev-master": "2.x-dev"
     }
   }
 }

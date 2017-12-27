@@ -90,8 +90,6 @@ class PiMigrationCommand extends ContainerAwareCommand
         $finder = new Finder();
         $finder->files()->name('Migration_*.php')->in($migrationDir)->sortByName();
 
-
-
         /** @var $file \Symfony\Component\Finder\SplFileInfo */
         foreach ($finder as $file) {
             $migrationName = $file->getBaseName('.php');
@@ -100,27 +98,42 @@ class PiMigrationCommand extends ContainerAwareCommand
             if ($currentVersion < $migrationVersion) {
                 //if ($migrationVersion == "24") {  // pour lancer la migration 25
                 $output->writeln('Start ' . $migrationName);
+
+                // We execute the migration file
                 require_once($file->getRealpath());
                 $var = new $migrationName($this->getContainer(), $output, $dialog);
 
+                //We save the actual migration version
+                $this->saveVersion($versionFilepath, $migrationVersion);
 
                 $output->writeln('End ' . $migrationName);
             }
         }
-        //save last version
-        $this->saveVersion($versionFilepath, $migrationVersion);
         $output->writeln('saving version '.$migrationVersion.' in ' . $versionFilepath);
     }
 
+    /**
+     * @param $filePath
+     * @param $version
+     */
     protected function saveVersion($filePath, $version)
     {
+        //create directory if not exists
+        if (!file_exists($dir = dirname($filePath))) {
+            mkdir($dir, 0755, true);
+        }
         file_put_contents($filePath, $version);
     }
 
+    /**
+     * @param $filePath
+     * @return int
+     */
     protected function loadVersion($filePath)
     {
         if (file_exists($filePath)) {
-            return file_get_contents($filePath);
+            return (int) file_get_contents($filePath);
         }
+        return 0;
     }
 }

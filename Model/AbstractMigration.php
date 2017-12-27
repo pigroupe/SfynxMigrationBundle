@@ -99,7 +99,7 @@ abstract class AbstractMigration
     /**
      * @return array
      */
-    protected function getTransactionManagers(): array
+    protected function getTransactionManagers(): ?array
     {
         return null;
     }

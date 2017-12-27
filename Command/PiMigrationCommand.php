@@ -124,7 +124,7 @@ class PiMigrationCommand extends ContainerAwareCommand
         }
         file_put_contents($filePath, $version);
     }
-    
+
     /**
      * @param $filePath
      * @return int

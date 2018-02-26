@@ -50,6 +50,8 @@ class SfynxMigrationExtension extends Extension
          */
         $container->setParameter('sfynx.tool.migration.migration_dir', $config['migration_dir']);
         $container->setParameter('sfynx.tool.migration.version_dir', $config['version_dir']);
+        $container->setParameter('sfynx.tool.migration.version_filename', $config['version_filename']);
+        $container->setParameter('sfynx.tool.migration.debug', $config['debug']);
     }
     
     public function getAlias()

@@ -4,7 +4,7 @@
   "description": "This Bundle provides a command to execute migration with a versionning system like doctrine migration.",
   "keywords": ["migration"],
   "homepage": "http://pigroupe.github.io/cmf-sfynx/",
-  "license": "LGPL-3.0+",
+  "license": "LGPL-3.0-or-latter",
   "authors": [
     {
       "name": "Etienne de Longeaux",

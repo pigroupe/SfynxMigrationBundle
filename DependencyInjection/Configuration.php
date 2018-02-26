@@ -69,6 +69,8 @@ class Configuration implements ConfigurationInterface
         ->children()
             ->scalarNode('migration_dir')->cannotBeEmpty()->end()
             ->scalarNode('version_dir')->cannotBeEmpty()->end()
+            ->scalarNode('version_filename')->defaultValue('version.txt')->cannotBeEmpty()->end()
+            ->booleanNode('debug')->defaultValue(false)->end()
         ->end();
     }           
 }

@@ -4,7 +4,7 @@
   "description": "This Bundle provides a command to execute migration with a versionning system like doctrine migration.",
   "keywords": ["migration"],
   "homepage": "http://pigroupe.github.io/cmf-sfynx/",
-  "license": "LGPL-3.0-or-latter",
+  "license": "LGPL-3.0-or-later",
   "authors": [
     {
       "name": "Etienne de Longeaux",
@@ -17,7 +17,7 @@
   ],
 
   "require": {
-    "symfony/framework-bundle": "~2.8|~3.0"
+    "symfony/framework-bundle": "~2.8|~3.0",
     "symfony/console": "*",
     "symfony/finder": "^3.2"
   },

@@ -42,79 +42,151 @@ use Symfony\Component\Finder\Finder;
  */
 class PiMigrationCommand extends ContainerAwareCommand
 {
-    protected $versionFilename = 'version.txt';
+    protected $versionFilepath;
+
+    const PARAM_MIGRATION_DIR = 'migrationDir';
+    const PARAM_VERSION_DIR = 'versionDir';
+    const PARAM_VERSION_FILENAME = 'versionFilename';
+    const PARAM_CURRENT_VERSION = 'currentVersion';
+    const PARAM_DEBUG = 'debug';
+
+    /**
+     * List of concrete $responseException that can be built using this factory.
+     * @var string[]
+     */
+    protected static $parametersList = [
+        self::PARAM_MIGRATION_DIR => 'sfynx.tool.migration.migration_dir',
+        self::PARAM_VERSION_DIR => 'sfynx.tool.migration.version_dir',
+        self::PARAM_VERSION_FILENAME => 'sfynx.tool.migration.version_filename',
+        self::PARAM_DEBUG => 'sfynx.tool.migration.debug'
+    ];
 
     protected function configure()
     {
         $this
             ->setName('sfynx:migration')
             ->setDescription('Migration Handler')
-            ->addOption('currentVersion', null, InputOption::VALUE_REQUIRED, 'Force the version of migration')
-            ->addOption('migrationDir', null, InputOption::VALUE_REQUIRED, 'Use another directory with all migration scripts')
-            ->addOption('versionDir', null, InputOption::VALUE_REQUIRED, 'Use another directory to store version file')
-            ->addOption('test', null, InputOption::VALUE_NONE, 'For test');
+            ->addOption(self::PARAM_CURRENT_VERSION, null, InputOption::VALUE_REQUIRED, 'Force the version of migration')
+            ->addOption(self::PARAM_MIGRATION_DIR, null, InputOption::VALUE_REQUIRED, 'Use another directory with all migration scripts')
+            ->addOption(self::PARAM_VERSION_DIR, null, InputOption::VALUE_REQUIRED, 'Use another directory to store version file')
+            ->addOption(self::PARAM_VERSION_FILENAME, null, InputOption::VALUE_REQUIRED, 'Use another filename to store version file')
+            ->addOption(self::PARAM_DEBUG, null, InputOption::VALUE_REQUIRED, 'Force the execution of all migration from current version dispate wrong migrations')
         ;
     }
 
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return void
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->input = $input;
+        $this->output = $output;
+
+        /** we set parameters */
+        $this->setParams();
+
+        $this->setOutput();
+
         /** @var $dialog \Symfony\Component\Console\Helper\DialogHelper */
         $dialog   = $this->getHelperSet()->get('question');
 
-        // migration number
-        $currentVersion = $input->getOption('currentVersion');
-
-        $output->writeln('Current version : ' . $currentVersion);
-
-        // migration directory
-        $migrationDir = $input->getOption('migrationDir');
-        if (null === $migrationDir) {
-            $migrationDir  = $this->getContainer()->getParameter('sfynx.tool.migration.migration_dir');
-        }
-
-        // version directory
-        $versionDir= $input->getOption('versionDir');
-        if (null === $versionDir) {
-            $versionDir  = $this->getContainer()->getParameter('sfynx.tool.migration.version_dir');
-        }
-
-        $versionFilepath = $versionDir.$this->versionFilename;
-
-        //if no version in options, load file
-        if (null === $currentVersion) {
-            $output->writeln('loading from cache ' . $versionFilepath);
-            $currentVersion = $this->loadVersion($versionFilepath);
-            $output->writeln('current version is ' . $currentVersion);
-        }
-
         $finder = new Finder();
-        $finder->files()->name('Migration_*.php')->in($migrationDir)->sortByName();
+        $finder->files()->name('Migration_*.php')->in($this->{self::PARAM_MIGRATION_DIR})->sortByName();
 
         /** @var $file \Symfony\Component\Finder\SplFileInfo */
         foreach ($finder as $file) {
             $migrationName = $file->getBaseName('.php');
             $migrationVersion = (int) str_replace('Migration_', '', $migrationName);
 
-            if ($currentVersion < $migrationVersion) {
-                //if ($migrationVersion == "24") {  // pour lancer la migration 25
-                $output->writeln('Start ' . $migrationName);
+            if ($this->{self::PARAM_CURRENT_VERSION} < $migrationVersion) {
+                $this->output->writeln('Start ' . $migrationName);
 
-                // We execute the migration file
-                require_once($file->getRealpath());
-                $var = new $migrationName($this->getContainer(), $output, $dialog);
+                try {
+                    // We execute the migration file
+                    require_once($file->getRealpath());
+                    $var = new $migrationName($this->getContainer(), $output, $dialog);
+                } catch (\Exception $e) {
+                    if (!$this->{self::PARAM_DEBUG}) {
+                        throw new \Exception($e->getMessage(), $e->getCode());
+                    }
+                }
 
                 //We save the actual migration version
-                $this->saveVersion($versionFilepath, $migrationVersion);
+                $this->saveVersion($this->versionFilepath, $migrationVersion);
 
-                $output->writeln('End ' . $migrationName);
+                $this->output->writeln('End ' . $migrationName);
             }
         }
-        $output->writeln('saving version '.$migrationVersion.' in ' . $versionFilepath);
+        $this->output->writeln('saving version '.$migrationVersion.' in ' . $this->versionFilepath);
+    }
+
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return void
+     */
+    protected function setParams()
+    {
+        $name_key = array_map([$this, 'setAttributsFromParameters'],
+            array_keys(self::$parametersList),
+            array_values(self::$parametersList)
+        );
+
+//        // migration directory
+//        $this->migrationDir = $this->input->getOption(self::PARAM_MIGRATION_DIR);
+//        if (null === $this->migrationDir) {
+//            $this->migrationDir  = $this->getContainer()->getParameter('sfynx.tool.migration.migration_dir');
+//        }
+//
+//        // version directory
+//        $this->versionDir= $this->input->getOption(self::PARAM_VERSION_DIR);
+//        if (null === $this->versionDir) {
+//            $this->versionDir  = $this->getContainer()->getParameter('sfynx.tool.migration.version_dir');
+//        }
+//
+//        // version filename
+//        $this->versionFilename= $this->input->getOption(self::PARAM_VERSION_FILENAME);
+//        if (null === $this->versionFilename) {
+//            $this->versionFilename  = $this->getContainer()->getParameter('sfynx.tool.migration.version_filename');
+//        }
+
+        $this->versionFilepath = $this->{self::PARAM_VERSION_DIR} . $this->{self::PARAM_VERSION_FILENAME};
+
+        $this->{self::PARAM_CURRENT_VERSION} = $this->input->getOption(self::PARAM_CURRENT_VERSION);
+        if (null === $this->{self::PARAM_CURRENT_VERSION}) {
+            $this->{self::PARAM_CURRENT_VERSION} = $this->loadVersion($this->versionFilepath);
+        }
+    }
+
+
+    protected function setAttributsFromParameters(string $optionName, string $parameterName)
+    {
+        $value = $this->input->getOption($optionName);
+        $value = in_array(strtolower(trim($value)), ['false', '0']) ? false : $value;
+        $value = in_array(strtolower(trim($value)), ['true', '1']) ? true : $value;
+
+        $this->{$optionName} = $value;
+        if (null === $this->{$optionName}) {
+            $this->{$optionName}  = $this->getContainer()->getParameter($parameterName);
+        }
+    }
+
+    /**
+     * @param OutputInterface $output
+     * @return void
+     */
+    protected function setOutput()
+    {
+        $this->output->writeln('loading from cache ' . $this->versionFilepath);
+        $this->output->writeln('loading from current version ' . $this->{self::PARAM_CURRENT_VERSION});
     }
 
     /**
      * @param $filePath
      * @param $version
+     * @return void
      */
     protected function saveVersion($filePath, $version)
     {

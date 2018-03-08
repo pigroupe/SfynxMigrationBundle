@@ -3,6 +3,7 @@ namespace Sfynx\MigrationBundle\Model;
 
 use Exception;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Helper\HelperInterface;
 
@@ -23,6 +24,8 @@ abstract class AbstractMigration
 {
     /** @var ContainerInterface */
     protected $container;
+    /** @var InputInterface */
+    protected $input;
     /** @var OutputInterface */
     protected $output;
     /** @var DialogHelper */
@@ -33,15 +36,18 @@ abstract class AbstractMigration
     /**
      * AbstractMigration constructor.
      * @param ContainerInterface $container
+     * @param InputInterface $input
      * @param OutputInterface $output
      * @param HelperInterface $dialog
      */
     public function __construct(
         ContainerInterface $container,
+        InputInterface $input,
         OutputInterface $output,
         HelperInterface $dialog
     ) {
         $this->container = $container;
+        $this->input    = $input;
         $this->output    = $output;
         $this->dialog    = $dialog;
 

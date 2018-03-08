@@ -19,7 +19,8 @@
   "require": {
     "symfony/framework-bundle": "~2.8|~3.0",
     "symfony/console": "*",
-    "symfony/finder": "*"
+    "symfony/finder": "*",
+    "doctrine/migrations": "^1.6"
   },
 
   "require-dev": {

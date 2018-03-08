@@ -106,7 +106,14 @@ class PiMigrationCommand extends ContainerAwareCommand
                 try {
                     // We execute the migration file
                     require_once($file->getRealpath());
-                    $var = new $migrationName($this->getContainer(), $output, $dialog);
+
+                    $migrationStart = microtime(true);
+
+                    $var = new $migrationName($this->getContainer(), $input, $output, $dialog);
+
+                    $migrationEnd = microtime(true);
+                    $this->time   = round($migrationEnd - $migrationStart, 2);
+                    $output->writeln(sprintf('    <info>++</info> migrated (%ss)', $this->time));
                 } catch (\Exception $e) {
                     if (!$this->{self::PARAM_DEBUG}) {
                         throw new \Exception($e->getMessage(), $e->getCode());
@@ -133,24 +140,6 @@ class PiMigrationCommand extends ContainerAwareCommand
             array_keys(self::$parametersList),
             array_values(self::$parametersList)
         );
-
-//        // migration directory
-//        $this->migrationDir = $this->input->getOption(self::PARAM_MIGRATION_DIR);
-//        if (null === $this->migrationDir) {
-//            $this->migrationDir  = $this->getContainer()->getParameter('sfynx.tool.migration.migration_dir');
-//        }
-//
-//        // version directory
-//        $this->versionDir= $this->input->getOption(self::PARAM_VERSION_DIR);
-//        if (null === $this->versionDir) {
-//            $this->versionDir  = $this->getContainer()->getParameter('sfynx.tool.migration.version_dir');
-//        }
-//
-//        // version filename
-//        $this->versionFilename= $this->input->getOption(self::PARAM_VERSION_FILENAME);
-//        if (null === $this->versionFilename) {
-//            $this->versionFilename  = $this->getContainer()->getParameter('sfynx.tool.migration.version_filename');
-//        }
 
         $this->versionFilepath = $this->{self::PARAM_VERSION_DIR} . $this->{self::PARAM_VERSION_FILENAME};
 

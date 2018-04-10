@@ -16,13 +16,33 @@ use Symfony\Component\Console\Input\InputOption;
 interface FactoryHandlerInterface
 {
     /**
-     * Execute the schema update process of all tables in relation with the entityManager.
+     * @param EntityManagerInterface $em
+     * @param string $DbName
+     * @static
+     */
+    public static function databaseCreate(EntityManagerInterface $em, string $DbName);
+
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @param EntityManagerInterface $em
+     * @return bool
+     * @static
+     */
+    public static function schemaCreate(
+        InputInterface $input,
+        OutputInterface $output,
+        EntityManagerInterface $em
+    );
+
+    /**
+     * Execute the schema update process from Diff of all tables in relation with the entityManager.
      *
      * @param InputInterface $input
      * @param OutputInterface $output
      * @param EntityManagerInterface $em
-     * @param string $version
-     * @param string|null $tableName
+     * @param boolean $saveMode If TRUE, only generates SQL for a partial update
+     *                          that does not include SQL for dropping assets which are scheduled for deletion.
      * @return bool TRUE on schema update success or FALSE on failure
      * @static
      */
@@ -30,7 +50,28 @@ interface FactoryHandlerInterface
         InputInterface $input,
         OutputInterface $output,
         EntityManagerInterface $em,
+        bool $saveMode = false
+    );
+
+    /**
+     * Execute the schema update process from Diff of all tables in relation with the entityManager.
+     *
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @param EntityManagerInterface $em
+     * @param boolean $saveMode If TRUE, only generates SQL for a partial update
+     *                          that does not include SQL for dropping assets which are scheduled for deletion.
+     * @param string $version
+     * @param string|null $tableName
+     * @return bool TRUE on schema update success or FALSE on failure
+     * @static
+     */
+    public static function schemaUpdateDiff(
+        InputInterface $input,
+        OutputInterface $output,
+        EntityManagerInterface $em,
         string $version,
+        array $SQLexclude = [],
         string $tableName = null
     );
 

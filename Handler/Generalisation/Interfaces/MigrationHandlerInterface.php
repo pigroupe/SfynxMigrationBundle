@@ -21,20 +21,22 @@ interface MigrationHandlerInterface
     public function isDiff($filterExpr = false, $formatted = InputOption::VALUE_NONE, $lineLength = InputOption::VALUE_OPTIONAL);
 
     /**
+     * @param array $SQLexclude
      * @param boolean $transaction
      * @param boolean $timeAllQueries Measuring or not the execution time of each SQL query.
      * @param boolean $dryRun         Whether to not actually execute the migration SQL and just do a dry run.
      * @return boolean TRUE on commit success transaction or FALSE on failure
      * @throws \Exception
      */
-    public function up($transaction = true, $timeAllQueries = false, $dryRun = false);
+    public function up(array $SQLexclude = [], $transaction = true, $timeAllQueries = false, $dryRun = false);
 
     /**
+     * @param array $SQLexclude
      * @param boolean $transaction
      * @param boolean $timeAllQueries Measuring or not the execution time of each SQL query.
      * @param boolean $dryRun         Whether to not actually execute the migration SQL and just do a dry run.
      * @return boolean TRUE on commit success transaction or FALSE on failure
      * @throws \Exception
      */
-    public function down($transaction = true, $timeAllQueries = false, $dryRun = false);
+    public function down(array $SQLexclude = [], $transaction = true, $timeAllQueries = false, $dryRun = false);
 }

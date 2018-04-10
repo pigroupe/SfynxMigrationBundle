@@ -139,17 +139,17 @@ class MigrationHandler implements MigrationHandlerInterface
     /**
      * {@inheritDoc}
      */
-    public function up($transaction = true, $timeAllQueries = false, $dryRun = false)
+    public function up(array $SQLexclude = [], $transaction = true, $timeAllQueries = false, $dryRun = false)
     {
-        return $this->execute(self::DIRECTION_UP, $transaction, $timeAllQueries, $dryRun);
+        return $this->execute(self::DIRECTION_UP, $transaction, $timeAllQueries, $dryRun, $SQLexclude);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function down($transaction = true, $timeAllQueries = false, $dryRun = false)
+    public function down(array $SQLexclude = [], $transaction = true, $timeAllQueries = false, $dryRun = false)
     {
-        return $this->execute(self::DIRECTION_DOWN, $transaction, $timeAllQueries, $dryRun);
+        return $this->execute(self::DIRECTION_DOWN, $transaction, $timeAllQueries, $dryRun, $SQLexclude);
     }
 
     /**
@@ -243,12 +243,13 @@ class MigrationHandler implements MigrationHandlerInterface
      * @param boolean $transaction
      * @param boolean $timeAllQueries Measuring or not the execution time of each SQL query.
      * @param boolean $dryRun         Whether to not actually execute the migration SQL and just do a dry run.
+     * @param array $SQLexclude
      *
      * @return boolean TRUE on commit success transaction or FALSE on failure
      *
      * @throws \Exception when migration fails
      */
-    private function execute($direction, $transaction = true, $timeAllQueries = false, $dryRun = false)
+    private function execute($direction, $transaction = true, $timeAllQueries = false, $dryRun = false, array $SQLexclude = [])
     {
         if ($transaction) {
             //only start transaction if in transactional mode
@@ -267,7 +268,7 @@ class MigrationHandler implements MigrationHandlerInterface
             }
 
             $this->state = self::STATE_EXEC;
-            $this->executeRegisteredSql($direction, $dryRun, $timeAllQueries);
+            $this->executeRegisteredSql($direction, $dryRun, $timeAllQueries, $SQLexclude);
             $this->state = self::STATE_POST;
 
             $migrationEnd = microtime(true);
@@ -370,23 +371,26 @@ class MigrationHandler implements MigrationHandlerInterface
      * @param string  $direction      The direction to execute the migration. ['up', 'down']
      * @param boolean $dryRun         Whether to not actually execute the migration SQL and just do a dry run.
      * @param boolean $timeAllQueries
+     * @param array $SQLexclude
      */
-    private function executeRegisteredSql($direction, $dryRun = false, $timeAllQueries = false)
+    private function executeRegisteredSql($direction, $dryRun = false, $timeAllQueries = false, array $SQLexclude = [])
     {
         if ( ! $dryRun) {
             if ( ! empty($this->sql[$direction])) {
                 foreach ($this->sql[$direction] as $key => $sql) {
-                    $queryStart = microtime(true);
+                    if (!in_array($sql, $SQLexclude)) {
+                        $queryStart = microtime(true);
 
-                    if ( ! isset($this->params[$direction][$key])) {
-                        $this->output->writeln('     <comment>-></comment> ' . $sql);
-                        $this->connection->executeQuery($sql);
-                    } else {
-                        $this->output->writeln(sprintf('    <comment>-</comment> %s (with parameters)', $sql));
-                        $this->connection->executeQuery($sql, $this->params[$direction][$key], $this->types[$direction][$key]);
+                        if (!isset($this->params[$direction][$key])) {
+                            $this->output->writeln('     <comment>-></comment> ' . $sql);
+                            $this->connection->executeQuery($sql);
+                        } else {
+                            $this->output->writeln(sprintf('    <comment>-</comment> %s (with parameters)', $sql));
+                            $this->connection->executeQuery($sql, $this->params[$direction][$key], $this->types[$direction][$key]);
+                        }
+
+                        $this->outputQueryTime($queryStart, $timeAllQueries);
                     }
-
-                    $this->outputQueryTime($queryStart, $timeAllQueries);
                 }
             } else {
                 $this->output->write(sprintf(

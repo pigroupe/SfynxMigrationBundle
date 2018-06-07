@@ -19,10 +19,10 @@ trait TraitGetMaxId
      * Return the max id (last id in database)
      *
      * @param EntityManagerInterface $em
-     * @param object $entity (Format: MyClass::class)
+     * @param string $entity (Format: MyClass::class)
      * @return mixed
      */
-    protected function getMaxId(EntityManagerInterface $em, $entity)
+    protected function getMaxId(EntityManagerInterface $em, string $entity)
     {
       return $em->createQueryBuilder()
         ->select('MAX(e.id)')
@@ -47,18 +47,36 @@ trait TraitGetMaxId
      * Execute  setMaxId after insert new lines with id
      *
      * @param EntityManagerInterface $em
-     * @param object $class
+     * @param string $entity (Format: MyClass::class)
+     * @param string $sequence_id
      */
-    protected function setMaxId(EntityManagerInterface $em, $class)
+    protected function setMaxId(EntityManagerInterface $em, string $entity, string $sequence_id = '')
     {
-        $tlMaxId = $this->getMaxId($em, $class);
+        if (empty($sequence_id)) {
+            $sequence_id = $this->getSequenceIdFromClassName($entity);
+        }
+
+        $MaxId = $this->getMaxId($em, $entity);
         //The number to update the auto increment in database
-        $tlNb = ($tlMaxId > 0)?($tlMaxId + 1):1;
+        $Nb = ($MaxId > 0)?($MaxId + 1):1;
         //Update auto increment query
-        $sql1 = "ALTER SEQUENCE typelist_id_seq RESTART WITH ".$tlNb ;
+        $sql1 = "ALTER SEQUENCE $sequence_id RESTART WITH " . $Nb ;
         //Connection statement and prepare query
-        $stmt1 = $tlEm->getConnection()->prepare($sql1);
+        $stmt1 = $em->getConnection()->prepare($sql1);
 
         $stmt1->execute();
+    }
+
+    /**
+     * @param string $entity (Format: MyClass::class)
+     * @return string
+     */
+    protected function getSequenceIdFromClassName(string $entity): string
+    {
+        if (strrpos($entity, '\\')) {
+            return substr($entity, strrpos($entity, '\\') + 1);
+        }
+
+        return strtolower($entity) . '_id_seq';
     }
 }

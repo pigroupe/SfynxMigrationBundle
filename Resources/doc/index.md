@@ -10,7 +10,7 @@ The following documents are available:
 
 - [Configuration reference](configuration_reference.md)
 - [Command options](command_reference.md)
-- [Example 1 - execute SQL requests](configuration_example_sql_requests.md)
+- [Example 1 - execute SQL requests](configuration_sql_requests.md)
 - [Example 2 - create entities from manager](configuration_create_entities.md)
 - [Example 3 - create entities with identifier](configuration_create_entities_with_identifier.md)
 - [ChangeLog](#changelog)

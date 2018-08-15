@@ -62,9 +62,7 @@ trait TraitGetMaxId
         //Update auto increment query
         $sql1 = "ALTER SEQUENCE $sequence_id RESTART WITH " . $Nb ;
         //Connection statement and prepare query
-        $stmt1 = $em->getConnection()->prepare($sql1);
-
-        $stmt1->execute();
+        $em->getConnection()->prepare($sql1)->execute();
     }
 
     /**
@@ -73,10 +71,9 @@ trait TraitGetMaxId
      */
     protected function getSequenceIdFromClassName(string $entity): string
     {
-        if (strrpos($entity, '\\')) {
-            return substr($entity, strrpos($entity, '\\') + 1);
+        if (\strrpos($entity, '\\')) {
+            return \substr($entity, \strrpos($entity, '\\') + 1);
         }
-
-        return strtolower($entity) . '_id_seq';
+        return \strtolower($entity) . '_id_seq';
     }
 }

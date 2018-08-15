@@ -66,11 +66,11 @@ class PiMigrationCommand extends ContainerAwareCommand
         $this
             ->setName('sfynx:migration')
             ->setDescription('Migration Handler')
-            ->addOption(self::PARAM_CURRENT_VERSION, null, InputOption::VALUE_REQUIRED, 'Force the version of migration')
+            ->addOption(self::PARAM_CURRENT_VERSION, null, InputOption::VALUE_REQUIRED, 'Force the last current version of migration')
             ->addOption(self::PARAM_MIGRATION_DIR, null, InputOption::VALUE_REQUIRED, 'Use another directory with all migration scripts')
-            ->addOption(self::PARAM_VERSION_DIR, null, InputOption::VALUE_REQUIRED, 'Use another directory to store version file')
-            ->addOption(self::PARAM_VERSION_FILENAME, null, InputOption::VALUE_REQUIRED, 'Use another filename to store version file')
-            ->addOption(self::PARAM_DEBUG, null, InputOption::VALUE_REQUIRED, 'Force the execution of all migration from current version dispate wrong migrations')
+            ->addOption(self::PARAM_VERSION_DIR, null, InputOption::VALUE_REQUIRED, 'Use another directory to store the last current version of migration')
+            ->addOption(self::PARAM_VERSION_FILENAME, null, InputOption::VALUE_REQUIRED, 'Use another filename to store the last current version of migration')
+            ->addOption(self::PARAM_DEBUG, null, InputOption::VALUE_REQUIRED, 'Force all migrations to run from the current version despite erroneous migrations')
         ;
     }
 
@@ -95,10 +95,10 @@ class PiMigrationCommand extends ContainerAwareCommand
         $finder = new Finder();
         $finder->files()->name('Migration_*.php')->in($this->{self::PARAM_MIGRATION_DIR})->sortByName();
 
-        /** @var $file \Symfony\Component\Finder\SplFileInfo */
+        /** @var \Symfony\Component\Finder\SplFileInfo $file */
         foreach ($finder as $file) {
             $migrationName = $file->getBaseName('.php');
-            $migrationVersion = (int) str_replace('Migration_', '', $migrationName);
+            $migrationVersion = (int) \str_replace('Migration_', '', $migrationName);
 
             if ($this->{self::PARAM_CURRENT_VERSION} < $migrationVersion) {
                 $this->output->writeln('Start ' . $migrationName);
@@ -107,12 +107,12 @@ class PiMigrationCommand extends ContainerAwareCommand
                     // We execute the migration file
                     require_once($file->getRealpath());
 
-                    $migrationStart = microtime(true);
+                    $migrationStart = \microtime(true);
 
                     $var = new $migrationName($this->getContainer(), $input, $output, $dialog);
 
-                    $migrationEnd = microtime(true);
-                    $this->time   = round($migrationEnd - $migrationStart, 2);
+                    $migrationEnd = \microtime(true);
+                    $this->time   = \round($migrationEnd - $migrationStart, 2);
                     $output->writeln(sprintf('    <info>++</info> migrated (%ss)', $this->time));
                 } catch (\Exception $e) {
                     if (!$this->{self::PARAM_DEBUG}) {
@@ -136,9 +136,9 @@ class PiMigrationCommand extends ContainerAwareCommand
      */
     protected function setParams()
     {
-        $name_key = array_map([$this, 'setAttributsFromParameters'],
-            array_keys(self::$parametersList),
-            array_values(self::$parametersList)
+        $name_key = \array_map([$this, 'setAttributsFromParameters'],
+            \array_keys(self::$parametersList),
+            \array_values(self::$parametersList)
         );
 
         $this->versionFilepath = $this->{self::PARAM_VERSION_DIR} . $this->{self::PARAM_VERSION_FILENAME};
@@ -149,12 +149,15 @@ class PiMigrationCommand extends ContainerAwareCommand
         }
     }
 
-
+    /**
+     * @param string $optionName
+     * @param string $parameterName
+     */
     protected function setAttributsFromParameters(string $optionName, string $parameterName)
     {
         $value = $this->input->getOption($optionName);
-        $value = in_array(strtolower(trim($value)), ['false', '0']) ? false : $value;
-        $value = in_array(strtolower(trim($value)), ['true', '1']) ? true : $value;
+        $value = \in_array(\strtolower(\trim($value)), ['false', '0']) ? false : $value;
+        $value = \in_array(\strtolower(\trim($value)), ['true', '1']) ? true : $value;
 
         $this->{$optionName} = $value;
         if (null === $this->{$optionName}) {
@@ -180,10 +183,10 @@ class PiMigrationCommand extends ContainerAwareCommand
     protected function saveVersion($filePath, $version)
     {
         //create directory if not exists
-        if (!file_exists($dir = dirname($filePath))) {
-            mkdir($dir, 0755, true);
+        if (!\file_exists($dir = \dirname($filePath))) {
+            \mkdir($dir, 0755, true);
         }
-        file_put_contents($filePath, $version);
+        \file_put_contents($filePath, $version);
     }
 
     /**
@@ -192,8 +195,8 @@ class PiMigrationCommand extends ContainerAwareCommand
      */
     protected function loadVersion($filePath)
     {
-        if (file_exists($filePath)) {
-            return (int) file_get_contents($filePath);
+        if (\file_exists($filePath)) {
+            return (int) \file_get_contents($filePath);
         }
         return 0;
     }

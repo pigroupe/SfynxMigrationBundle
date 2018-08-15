@@ -36,7 +36,7 @@ interface FactoryHandlerInterface
     );
 
     /**
-     * Execute the schema update process from Diff of all tables in relation with the entityManager.
+     * Execute the schema update process of all tables in relation with the entityManager.
      *
      * @param InputInterface $input
      * @param OutputInterface $output

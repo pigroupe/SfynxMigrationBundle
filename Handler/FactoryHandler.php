@@ -76,10 +76,9 @@ class FactoryHandler implements FactoryHandlerInterface
             $output->writeln('Database schema created successfully!');
 
             return true;
-        } else {
-            $output->writeln('No Metadata Classes to process.');
-            return false;
         }
+        $output->writeln('No Metadata Classes to process.');
+        return false;
     }
 
     /**
@@ -109,10 +108,9 @@ class FactoryHandler implements FactoryHandlerInterface
             $output->writeln(sprintf('Database schema updated successfully! "<info>%s</info>" %s executed', count($sqls), $pluralization));
 
             return true;
-        } else {
-            $output->writeln('No Metadata Classes to process.');
-            return false;
         }
+        $output->writeln('No Metadata Classes to process.');
+        return false;
     }
 
     /**
